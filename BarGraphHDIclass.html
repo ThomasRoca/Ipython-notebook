@@ -1,0 +1,41 @@
+ 
+<script type='text/javascript'>//<![CDATA[ 
+var dataValues =[0.7565833333333335, 0.48931250000000004, 0.6513125, 0.8736595744680852] 
+; 
+var dataValues2 = 
+[0.7267777777777779, 0.41331249999999986, 0.600375, 0.8538936170212766] 
+;
+var categories = 
+['High HDI', 'Low HDI', 'Medium HDI', 'Very high HDI']
+;
+// Define the variables
+var title="Human Development Index by gender, 2013";
+var c1="rgba(165,170,217,1)";
+var c2="rgba(126,86,134,.9)";
+var serie1="Men";
+var serie2="Women";
+</script>
+
+<html><head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Highcharts with variable Column - by ThomasRoca</title>
+  <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+
+<script type='text/javascript'>
+$(function () {
+    $('#container').highcharts({
+    chart: {type: 'column'},
+    plotOptions: {column: {grouping:false,shadow:false,borderWidth: 0} },
+title: { text:title },
+xAxis: {categories: categories },
+series: [{ name: serie1, color: c1, data: dataValues,pointPadding: 0.3 }, 
+          {name: serie2, color: c2, data: dataValues2,pointPadding: 0.4 }
+     ]
+    });
+});  
+//]]>  
+
+</script></head>
+<body><script src="http://code.highcharts.com/highcharts.js"></script>
+<div id="container" style="height: 400px"></div>
+</body></html>

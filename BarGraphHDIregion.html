@@ -1,0 +1,41 @@
+ 
+<script type='text/javascript'>//<![CDATA[ 
+var dataValues =[0.765, 0.8224545454545455, 0.7322272727272728, 0.7727647058823529, 0.9105000000000001, 0.6264285714285714, 0.5102571428571429] 
+; 
+var dataValues2 = 
+[0.7277, 0.806818181818182, 0.7097727272727272, 0.6963529411764704, 0.902, 0.5330000000000001, 0.44837142857142853] 
+;
+var categories = 
+['East Asia & Pacific (all income levels)', 'Europe & Central Asia (all income levels)', 'Latin America & Caribbean (all income levels)', 'Middle East & North Africa (all income levels)', 'North America', 'South Asia', 'Sub-Saharan Africa (all income levels)']
+;
+// Define the variables
+var title="Human Development Index by gender, 2013";
+var c1="rgba(165,170,217,1)";
+var c2="rgba(126,86,134,.9)";
+var serie1="Men";
+var serie2="Women";
+</script>
+
+<html><head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Highcharts with variable Column - by ThomasRoca</title>
+  <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+
+<script type='text/javascript'>
+$(function () {
+    $('#container').highcharts({
+    chart: {type: 'column'},
+    plotOptions: {column: {grouping:false,shadow:false,borderWidth: 0} },
+title: { text:title },
+xAxis: {categories: categories },
+series: [{ name: serie1, color: c1, data: dataValues,pointPadding: 0.3 }, 
+          {name: serie2, color: c2, data: dataValues2,pointPadding: 0.4 }
+     ]
+    });
+});  
+//]]>  
+
+</script></head>
+<body><script src="http://code.highcharts.com/highcharts.js"></script>
+<div id="container" style="height: 400px"></div>
+</body></html>
