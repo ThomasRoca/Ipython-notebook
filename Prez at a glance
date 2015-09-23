@@ -1,0 +1,614 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#<span style=\"color:#285c8c\"><big>&#9733; Programmatic access to data &#9733;</span><big> <span style=\"color:#00acee;\"><i>[hmmm... WTH?]<b><big><big></b></span> </span>\n",
+    "![image](api2.png)\n",
+    "&#9733; Thomas Roca, PhD, AFD Research Direction &#9733;<br>\n",
+    "*Version sept 22, 2015*"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true
+   },
+   "source": [
+    "####1/\tData access through API:\n",
+    "\t1.1\tAutomate data collection, processing and visualization\t\t\t\t\t\t\t\t\t\n",
+    "\t1.2\tExample, HDX, World Bank Data, Quandl, etc.\n",
+    "    1.3    The Json format\n",
+    " \n",
+    "#####2/\tThe  \"At a glance\" project: \t\t\t\t\t\t\t\t\t\t\n",
+    "\t2.1\tTemplate proposed by our economists (sept 2014)\t\t\t\t\t\t\t\t\t\n",
+    "\t2.2\tTowards automation: A first prototype\t\t\t\t\t\t\t\t\t\n",
+    "\t2.3\tLet's talk a little bit about tech\t\t\t\t\t\t\t\t\t\n",
+    "#####3/\tReactions and Actions \t\t\t\t\t\t\t\t\t\n",
+    "\t3.1 Indicator validation\t\t\t\t\t\t\t\t\t\n",
+    "\t3.2 Emebding country risk data, talyor made services (app, graph, maps, etc.)  "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "-------------------"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#<span style=\"color:#00acee;\">1. Programmatic access to data: What's an API ?\n",
+    "- Automatic data collection tool\n",
+    "- E.g. API Twitter, Facebook, etc. but also... World Bank, UN data, Quanld, etc.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<div style=\"margin-top:0px; margin-left:0px;\">  \n",
+    "![image](APIcall.png)</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "------------------\n",
+    "## <span style=\"color:#285c8c;\">Example UN/HDX, UNDP/HDR data and Quandl"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<iframe src=\"https://data.hdx.rwlabs.org/ebola\" scrolling=\"no\" frameborder=\"0\" width=100%\" height=\"550px\"></iframe>"
+      ],
+      "text/plain": [
+       "<IPython.core.display.HTML object>"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from IPython.display import HTML\n",
+    "HTML('''<iframe src=\"https://data.hdx.rwlabs.org/ebola\" scrolling=\"no\" frameborder=\"0\" width=100%\" height=\"550px\"></iframe>''')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## <span style=\"color:#97b518;\">A. An example of request on HDX API "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "--------------------------------\n",
+      "API answer: https://data.hdx.rwlabs.org/api/action/datastore_search?resource_id=a02903a9-022b-4047-bbb5-45127b591c85\n",
+      "--------------------------------\n",
+      "Cumulative Cases of Ebola = 28331.0\n",
+      "--------------------------------\n",
+      "Open Ebola Treatment Centers = 24.0\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import json\n",
+    "\n",
+    "url=\"https://data.hdx.rwlabs.org/api/action/datastore_search?resource_id=a02903a9-022b-4047-bbb5-45127b591c85\"\n",
+    "\n",
+    "print('--------------------------------')\n",
+    "print(\"API answer:\", url) #Show url\n",
+    "print('--------------------------------')\n",
+    "\n",
+    "df=pd.read_json(url)\n",
+    "\n",
+    "title=df['result']['records'][0]['title']\n",
+    "value=df['result']['records'][0]['value']\n",
+    "print(title,'=', value)\n",
+    "print('--------------------------------')\n",
+    "title2=df['result']['records'][4]['title']\n",
+    "value2=df['result']['records'][4]['value']\n",
+    "print(title2,'=', value2)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## <span style=\"color:#97b518;\">B. An example of request on the World Bank data API"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "GDP per capita (current US$)\n",
+      "              NY.GDP.PCAP.CD\n",
+      "country year                \n",
+      "France  2006    36544.508534\n",
+      "        2005    34879.726329\n",
+      "        2004    33874.742548\n",
+      "        2003    29691.181584\n",
+      "        2002    24275.242603\n",
+      "        2001    22527.317751\n",
+      "        2000    22465.641841\n",
+      "        1999    24799.296010\n",
+      "        1998    25101.368737\n",
+      "        1997    24359.425062\n",
+      "        1996    27015.258959\n",
+      "        1995    27037.972132\n",
+      "        1994    23625.528997\n",
+      "        1993    22503.260851\n",
+      "        1992    23937.056918\n",
+      "        1991    21782.416204\n",
+      "        1990    21795.237825\n",
+      "        1989    17704.958983\n",
+      "        1988    17696.511150\n",
+      "        1987    16324.393559\n",
+      "        1986    13557.147215\n",
+      "        1985     9775.339435\n",
+      "        1984     9432.292357\n",
+      "        1983    10005.151672\n",
+      "        1982    10505.735472\n",
+      "        1981    11110.559768\n",
+      "        1980    12712.601399\n"
+     ]
+    }
+   ],
+   "source": [
+    "from pandas.io import wb\n",
+    "\n",
+    "#indicator to request (GDPpc)\n",
+    "ind = ['NY.GDP.PCAP.CD']\n",
+    "\n",
+    "#request\n",
+    "dataset = wb.download(indicator=ind, country='FRA', start=2006, end=1980)\n",
+    "\n",
+    "#indicator label\n",
+    "print(\"GDP per capita (current US$)\")\n",
+    "print(dataset)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## <span style=\"color:#97b518;\">C. From data request to dataset construction (ex. with Quandl)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Attempt downloading....PER.. Indicator: NID_NGDP\n",
+      "Attempt downloading....PER.. Indicator: PPPGDP\n",
+      "Attempt downloading....PER.. Indicator: BCA_NGDPD\n",
+      "Attempt downloading....PER.. Indicator: BCA\n",
+      "Attempt downloading....PER.. Indicator: LE\n",
+      "Attempt downloading....PER.. Indicator: LE... failed\n",
+      "Attempt downloading....PER.. Indicator: LUR\n",
+      "***These indicators were not available for PER :\n",
+      "['LE']\n",
+      "Attempt downloading....BOL.. Indicator: NID_NGDP\n",
+      "Attempt downloading....BOL.. Indicator: PPPGDP\n",
+      "Attempt downloading....BOL.. Indicator: BCA_NGDPD\n",
+      "Attempt downloading....BOL.. Indicator: BCA\n",
+      "Attempt downloading....BOL.. Indicator: LE\n",
+      "Attempt downloading....BOL.. Indicator: LE... failed\n",
+      "Attempt downloading....BOL.. Indicator: LUR\n",
+      "***These indicators were not available for BOL :\n",
+      "['LE']\n",
+      "Attempt downloading....DZA.. Indicator: NID_NGDP\n",
+      "Attempt downloading....DZA.. Indicator: PPPGDP\n",
+      "Attempt downloading....DZA.. Indicator: BCA_NGDPD\n",
+      "Attempt downloading....DZA.. Indicator: BCA\n",
+      "Attempt downloading....DZA.. Indicator: LE\n",
+      "Attempt downloading....DZA.. Indicator: LE... failed\n",
+      "Attempt downloading....DZA.. Indicator: LUR\n",
+      "***These indicators were not available for DZA :\n",
+      "['LE']\n",
+      "             LUR     BCA  BCA_NGDPD   PPPGDP  NID_NGDP  LE Income_class Region\n",
+      "DZA 1980  15.789   0.242      0.571   85.869    32.586 NaN          UMC    MEA\n",
+      "    1981  15.385  -0.209     -0.472   96.704    30.830 NaN          UMC    MEA\n",
+      "    1982  15.000  -0.436     -0.973  109.277    31.091 NaN          UMC    MEA\n",
+      "    1983  14.286  -0.085     -0.179  119.724    31.329 NaN          UMC    MEA\n",
+      "    1984  16.536   0.074      0.144  130.916    29.229 NaN          UMC    MEA\n",
+      "    1985  16.901   1.015      1.660  142.671    27.682 NaN          UMC    MEA\n",
+      "    1986  18.356  -2.230     -3.623  145.256    27.919 NaN          UMC    MEA\n",
+      "    1987  20.056   0.141      0.223  147.921    25.041 NaN          UMC    MEA\n",
+      "    1988  21.801  -1.900     -3.678  150.190    23.504 NaN          UMC    MEA\n",
+      "    1989  20.679  -1.033     -1.965  163.520    25.449 NaN          UMC    MEA\n",
+      "    1990  19.757   1.350      2.181  171.690    24.097 NaN          UMC    MEA\n",
+      "    1991  20.263   2.390      5.121  175.276    29.412 NaN          UMC    MEA\n",
+      "    1992  21.368   1.290      2.621  182.140    27.600 NaN          UMC    MEA\n",
+      "    1993  23.152   0.810      1.589  182.553    24.060 NaN          UMC    MEA\n",
+      "    1994  24.362  -1.839     -4.334  184.760    29.485 NaN          UMC    MEA\n",
+      "    1995  28.105  -2.237     -5.318  195.871    30.170 NaN          UMC    MEA\n",
+      "    1996  27.986   1.248      2.658  207.025    26.473 NaN          UMC    MEA\n",
+      "    1997  27.961   3.450      7.161  212.886    22.440 NaN          UMC    MEA\n",
+      "    1998  28.021  -0.910     -1.888  226.165    27.146 NaN          UMC    MEA\n",
+      "    1999  29.293   0.020      0.041  236.974    28.717 NaN          UMC    MEA\n",
+      "    2000  29.496   9.142     16.699  251.576    25.014 NaN          UMC    MEA\n",
+      "    2001  27.306   7.060     12.896  265.029    26.754 NaN          UMC    MEA\n",
+      "    2002  25.664   4.359      7.680  284.167    30.804 NaN          UMC    MEA\n",
+      "    2003  23.716   8.808     12.979  310.701    30.337 NaN          UMC    MEA\n",
+      "    2004  17.656  11.116     13.028  332.973    33.305 NaN          UMC    MEA\n",
+      "    2005  15.265  21.183     20.526  363.963    31.334 NaN          UMC    MEA\n",
+      "    2006  12.512  28.950     24.738  381.466    29.837 NaN          UMC    MEA\n",
+      "    2007  13.793  30.600     22.671  404.825    34.294 NaN          UMC    MEA\n",
+      "    2008  11.333  34.449     20.146  422.508    37.349 NaN          UMC    MEA\n",
+      "    2009  10.167   0.411      0.300  432.666    46.959 NaN          UMC    MEA\n",
+      "    2010   9.961  12.157      7.541  453.789    42.328 NaN          UMC    MEA\n",
+      "    2011   9.971  19.802      9.931  476.254    38.309 NaN          UMC    MEA\n",
+      "    2012  11.000  12.290      5.914  500.814    40.958 NaN          UMC    MEA\n",
+      "    2013   9.829   0.835      0.400  522.314    44.917 NaN          UMC    MEA\n",
+      "    2014  10.600  -9.289     -4.339  551.809    44.545 NaN          UMC    MEA\n",
+      "    2015  11.759 -29.358    -15.686  571.210    50.959 NaN          UMC    MEA\n",
+      "    2016  11.887 -26.010    -13.169  602.200    50.842 NaN          UMC    MEA\n",
+      "    2017  11.930 -24.587    -11.917  639.266    51.351 NaN          UMC    MEA\n",
+      "    2018  12.046 -20.727     -9.645  678.688    51.340 NaN          UMC    MEA\n",
+      "    2019  12.314 -17.036     -7.641  717.463    51.285 NaN          UMC    MEA\n",
+      "    2020  12.650 -16.259     -7.000  757.768    51.497 NaN          UMC    MEA\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "from pandas import Series, DataFrame, concat\n",
+    "import numpy as np\n",
+    "import os, sys\n",
+    "import Quandl\n",
+    "from datetime import datetime\n",
+    "\n",
+    "#https://www.quandl.com/data/ODA/documentation/documentation\n",
+    "APIKey=\"DWys3k7zkj4oyByx6Z48\" # optional, to allow more than 50 request per day\n",
+    "isolist=['PER', 'BOL', 'DZA']\n",
+    "indicator_list=['NID_NGDP','PPPGDP','BCA_NGDPD','BCA','LE','LUR']\n",
+    "source='\"data_source\":{\"source\":\"IMF, WEO\", \"provider\":\"Quandl\", \"Download_date\":\"'+datetime.now().strftime('%Y-%m-%d')+'\" }'\n",
+    "\n",
+    "\n",
+    "for ISO in isolist:\n",
+    "    \n",
+    "    #empty list to start with\n",
+    "    isolistPlus=[] \n",
+    "\n",
+    "    #Add the meta for countries after the last list\n",
+    "    with open (\"data/json meta country.json.txt\", \"r\") as meta:\n",
+    "        for line in meta :\n",
+    "            if line.startswith('\"'+ISO+'\"') :\n",
+    "                metacountry=line\n",
+    "\n",
+    "    #This dictionnary associate a country name to an iso3 code \n",
+    "    country_dict = {\"Arab World\":\"ARB\", \"Central Europe and the Baltics\":\"CEB\", \"Caribbean small states\":\"CSS\", \"East Asia & Pacific\":\"EAP\", \"East Asia & Pacific (all income levels)\":\"EAS\", \"Europe & Central Asia\":\"ECA\", \"Europe & Central Asia (all income levels)\":\"ECS\", \"Euro area\":\"EMU\", \"European Union\":\"EUU\", \"Fragile and conflict affected situations\":\"FCS\", \"High income\":\"HIC\", \"Heavily indebted poor countries (HIPC)\":\"HPC\", \"Latin America & Caribbean\":\"LAC\", \"Latin America & Caribbean (all income levels)\":\"LCN\", \"Least developed countries: UN classification\":\"LDC\", \"Low income\":\"LIC\", \"Lower middle income\":\"LMC\", \"Low & middle income\":\"LMY\", \"Middle East & North Africa (all income levels)\":\"MEA\", \"Middle income\":\"MIC\", \"Middle East & North Africa\":\"MNA\", \"North America\":\"NAC\", \"High income: nonOECD\":\"NOC\", \"High income: OECD\":\"OEC\", \"OECD members\":\"OED\", \"Other small states\":\"OSS\", \"Pacific island small states\":\"PSS\", \"South Asia\":\"SAS\", \"Sub-Saharan Africa\":\"SSA\", \"Sub-Saharan Africa (all income levels)\":\"SSF\", \"Small states\":\"SST\", \"Upper middle income\":\"UMC\", \"World\":\"WLD\",\"Cote d'Ivoire\":\"CIV\",\"Curacao\":\"CUW\",\"Sao Tome and Principe\":\"STP\",\"American Samoa\":\"ASM\",\"Australia\":\"AUS\",\"Brunei Darussalam\":\"BRN\",\"China\":\"CHN\",\"Fiji\":\"FJI\",\"Micronesia, Fed. Sts.\":\"FSM\",\"Guam\":\"GUM\",\"Hong Kong SAR, China\":\"HKG\",\"Indonesia\":\"IDN\",\"Japan\":\"JPN\",\"Cambodia\":\"KHM\",\"Kiribati\":\"KIR\",\"Korea, Rep.\":\"KOR\",\"Lao PDR\":\"LAO\",\"Macao SAR, China\":\"MAC\",\"Marshall Islands\":\"MHL\",\"Myanmar\":\"MMR\",\"Mongolia\":\"MNG\",\"Northern Mariana Islands\":\"MNP\",\"Malaysia\":\"MYS\",\"New Caledonia\":\"NCL\",\"New Zealand\":\"NZL\",\"Philippines\":\"PHL\",\"Palau\":\"PLW\",\"Papua New Guinea\":\"PNG\",\"Korea, Dem. Rep.\":\"PRK\",\"French Polynesia\":\"PYF\",\"Singapore\":\"SGP\",\"Solomon Islands\":\"SLB\",\"Thailand\":\"THA\",\"Timor-Leste\":\"TLS\",\"Tonga\":\"TON\",\"Tuvalu\":\"TUV\",\"Taiwan, China\":\"TWN\",\"Vietnam\":\"VNM\",\"Vanuatu\":\"VUT\",\"Samoa\":\"WSM\",\"Albania\":\"ALB\",\"Andorra\":\"AND\",\"Armenia\":\"ARM\",\"Austria\":\"AUT\",\"Azerbaijan\":\"AZE\",\"Belgium\":\"BEL\",\"Bulgaria\":\"BGR\",\"Bosnia and Herzegovina\":\"BIH\",\"Belarus\":\"BLR\",\"Switzerland\":\"CHE\",\"Channel Islands\":\"CHI\",\"Cyprus\":\"CYP\",\"Czech Republic\":\"CZE\",\"Germany\":\"DEU\",\"Denmark\":\"DNK\",\"Spain\":\"ESP\",\"Estonia\":\"EST\",\"Finland\":\"FIN\",\"France\":\"FRA\",\"Faeroe Islands\":\"FRO\",\"United Kingdom\":\"GBR\",\"Georgia\":\"GEO\",\"Greece\":\"GRC\",\"Greenland\":\"GRL\",\"Croatia\":\"HRV\",\"Hungary\":\"HUN\",\"Isle of Man\":\"IMN\",\"Ireland\":\"IRL\",\"Iceland\":\"ISL\",\"Italy\":\"ITA\",\"Kazakhstan\":\"KAZ\",\"Kyrgyz Republic\":\"KGZ\",\"Liechtenstein\":\"LIE\",\"Lithuania\":\"LTU\",\"Luxembourg\":\"LUX\",\"Latvia\":\"LVA\",\"Monaco\":\"MCO\",\"Moldova\":\"MDA\",\"Macedonia, FYR\":\"MKD\",\"Montenegro\":\"MNE\",\"Netherlands\":\"NLD\",\"Norway\":\"NOR\",\"Poland\":\"POL\",\"Portugal\":\"PRT\",\"Romania\":\"ROU\",\"Russian Federation\":\"RUS\",\"San Marino\":\"SMR\",\"Serbia\":\"SRB\",\"Slovak Republic\":\"SVK\",\"Slovenia\":\"SVN\",\"Sweden\":\"SWE\",\"Tajikistan\":\"TJK\",\"Turkmenistan\":\"TKM\",\"Turkey\":\"TUR\",\"Ukraine\":\"UKR\",\"Uzbekistan\":\"UZB\",\"Aruba\":\"ABW\",\"Argentina\":\"ARG\",\"Antigua and Barbuda\":\"ATG\",\"Bahamas, The\":\"BHS\",\"Belize\":\"BLZ\",\"Bolivia\":\"BOL\",\"Brazil\":\"BRA\",\"Barbados\":\"BRB\",\"Chile\":\"CHL\",\"Colombia\":\"COL\",\"Costa Rica\":\"CRI\",\"Cuba\":\"CUB\",\"Curaçao\":\"CUW\",\"Cayman Islands\":\"CYM\",\"Dominica\":\"DMA\",\"Dominican Republic\":\"DOM\",\"Ecuador\":\"ECU\",\"Grenada\":\"GRD\",\"Guatemala\":\"GTM\",\"Guyana\":\"GUY\",\"Honduras\":\"HND\",\"Haiti\":\"HTI\",\"Jamaica\":\"JAM\",\"St. Kitts and Nevis\":\"KNA\",\"St. Lucia\":\"LCA\",\"St. Martin (French part)\":\"MAF\",\"Mexico\":\"MEX\",\"Nicaragua\":\"NIC\",\"Panama\":\"PAN\",\"Peru\":\"PER\",\"Puerto Rico\":\"PRI\",\"Paraguay\":\"PRY\",\"El Salvador\":\"SLV\",\"Suriname\":\"SUR\",\"Sint Maarten (Dutch part)\":\"SXM\",\"Turks and Caicos Islands\":\"TCA\",\"Trinidad and Tobago\":\"TTO\",\"Uruguay\":\"URY\",\"St. Vincent and the Grenadines\":\"VCT\",\"Venezuela, RB\":\"VEN\",\"Virgin Islands (U.S.)\":\"VIR\",\"United Arab Emirates\":\"ARE\",\"Bahrain\":\"BHR\",\"Djibouti\":\"DJI\",\"Algeria\":\"DZA\",\"Egypt, Arab Rep.\":\"EGY\",\"Iran, Islamic Rep.\":\"IRN\",\"Iraq\":\"IRQ\",\"Israel\":\"ISR\",\"Jordan\":\"JOR\",\"Kuwait\":\"KWT\",\"Lebanon\":\"LBN\",\"Libya\":\"LBY\",\"Morocco\":\"MAR\",\"Malta\":\"MLT\",\"Oman\":\"OMN\",\"West Bank and Gaza\":\"PSE\",\"Qatar\":\"QAT\",\"Saudi Arabia\":\"SAU\",\"Syrian Arab Republic\":\"SYR\",\"Tunisia\":\"TUN\",\"Yemen, Rep.\":\"YEM\",\"Bermuda\":\"BMU\",\"Canada\":\"CAN\",\"United States\":\"USA\",\"Afghanistan\":\"AFG\",\"Bangladesh\":\"BGD\",\"Bhutan\":\"BTN\",\"India\":\"IND\",\"Sri Lanka\":\"LKA\",\"Maldives\":\"MDV\",\"Nepal\":\"NPL\",\"Pakistan\":\"PAK\",\"Angola\":\"AGO\",\"Burundi\":\"BDI\",\"Benin\":\"BEN\",\"Burkina Faso\":\"BFA\",\"Botswana\":\"BWA\",\"Central African Republic\":\"CAF\",\"Côte d'Ivoire\":\"CIV\",\"Cameroon\":\"CMR\",\"Congo, Dem. Rep.\":\"COD\",\"Congo, Rep.\":\"COG\",\"Comoros\":\"COM\",\"Cabo Verde\":\"CPV\",\"Eritrea\":\"ERI\",\"Ethiopia\":\"ETH\",\"Gabon\":\"GAB\",\"Ghana\":\"GHA\",\"Guinea\":\"GIN\",\"Gambia, The\":\"GMB\",\"Guinea-Bissau\":\"GNB\",\"Equatorial Guinea\":\"GNQ\",\"Kenya\":\"KEN\",\"Liberia\":\"LBR\",\"Lesotho\":\"LSO\",\"Madagascar\":\"MDG\",\"Mali\":\"MLI\",\"Mozambique\":\"MOZ\",\"Mauritania\":\"MRT\",\"Mauritius\":\"MUS\",\"Malawi\":\"MWI\",\"Namibia\":\"NAM\",\"Niger\":\"NER\",\"Nigeria\":\"NGA\",\"Rwanda\":\"RWA\",\"Sudan\":\"SDN\",\"Senegal\":\"SEN\",\"Sierra Leone\":\"SLE\",\"Somalia\":\"SOM\",\"South Sudan\":\"SSD\",\"São Tomé and Principe\":\"STP\",\"Swaziland\":\"SWZ\",\"Seychelles\":\"SYC\",\"Chad\":\"TCD\",\"Togo\":\"TGO\",\"Tanzania\":\"TZA\",\"Uganda\":\"UGA\",\"South Africa\":\"ZAF\",\"Zambia\":\"ZMB\",\"Zimbabwe\":\"ZWE\"}\n",
+    "\n",
+    "    #Region dictionnary that affect to a country iso3 its income group, region group, and worl:\n",
+    "    region_dict= {\"ASM\":\"UMC,EAS,WLD\",\"AUS\":\"OEC,EAS,WLD\",\"BRN\":\"NOC,EAS,WLD\",\"CHN\":\"UMC,EAS,WLD\",\"FJI\":\"UMC,EAS,WLD\",\"FSM\":\"LMC,EAS,WLD\",\"GUM\":\"NOC,EAS,WLD\",\"HKG\":\"NOC,EAS,WLD\",\"IDN\":\"LMC,EAS,WLD\",\"JPN\":\"OEC,EAS,WLD\",\"KHM\":\"LIC,EAS,WLD\",\"KIR\":\"LMC,EAS,WLD\",\"KOR\":\"OEC,EAS,WLD\",\"LAO\":\"LMC,EAS,WLD\",\"MAC\":\"NOC,EAS,WLD\",\"MHL\":\"UMC,EAS,WLD\",\"MMR\":\"LMC,EAS,WLD\",\"MNG\":\"UMC,EAS,WLD\",\"MNP\":\"NOC,EAS,WLD\",\"MYS\":\"UMC,EAS,WLD\",\"NCL\":\"NOC,EAS,WLD\",\"NZL\":\"OEC,EAS,WLD\",\"PHL\":\"LMC,EAS,WLD\",\"PLW\":\"UMC,EAS,WLD\",\"PNG\":\"LMC,EAS,WLD\",\"PRK\":\"LIC,EAS,WLD\",\"PYF\":\"NOC,EAS,WLD\",\"SGP\":\"NOC,EAS,WLD\",\"SLB\":\"LMC,EAS,WLD\",\"THA\":\"UMC,EAS,WLD\",\"TLS\":\"LMC,EAS,WLD\",\"TON\":\"UMC,EAS,WLD\",\"TUV\":\"UMC,EAS,WLD\",\"TWN\":\"NOC,EAS,WLD\",\"VNM\":\"LMC,EAS,WLD\",\"VUT\":\"LMC,EAS,WLD\",\"WSM\":\"LMC,EAS,WLD\",\"\":\"LMC,ECS,WLD\",\"ALB\":\"UMC,ECS,WLD\",\"AND\":\"NOC,ECS,WLD\",\"ARM\":\"LMC,ECS,WLD\",\"AUT\":\"OEC,ECS,WLD\",\"AZE\":\"UMC,ECS,WLD\",\"BEL\":\"OEC,ECS,WLD\",\"BGR\":\"UMC,ECS,WLD\",\"BIH\":\"UMC,ECS,WLD\",\"BLR\":\"UMC,ECS,WLD\",\"CHE\":\"OEC,ECS,WLD\",\"CHI\":\"NOC,ECS,WLD\",\"CYP\":\"NOC,ECS,WLD\",\"CZE\":\"OEC,ECS,WLD\",\"DEU\":\"OEC,ECS,WLD\",\"DNK\":\"OEC,ECS,WLD\",\"ESP\":\"OEC,ECS,WLD\",\"EST\":\"OEC,ECS,WLD\",\"FIN\":\"OEC,ECS,WLD\",\"FRA\":\"OEC,ECS,WLD\",\"FRO\":\"NOC,ECS,WLD\",\"GBR\":\"OEC,ECS,WLD\",\"GEO\":\"LMC,ECS,WLD\",\"GRC\":\"OEC,ECS,WLD\",\"GRL\":\"NOC,ECS,WLD\",\"HRV\":\"NOC,ECS,WLD\",\"HUN\":\"OEC,ECS,WLD\",\"IMN\":\"NOC,ECS,WLD\",\"IRL\":\"OEC,ECS,WLD\",\"ISL\":\"OEC,ECS,WLD\",\"ITA\":\"OEC,ECS,WLD\",\"KAZ\":\"UMC,ECS,WLD\",\"KGZ\":\"LMC,ECS,WLD\",\"LIE\":\"NOC,ECS,WLD\",\"LTU\":\"NOC,ECS,WLD\",\"LUX\":\"OEC,ECS,WLD\",\"LVA\":\"NOC,ECS,WLD\",\"MCO\":\"NOC,ECS,WLD\",\"MDA\":\"LMC,ECS,WLD\",\"MKD\":\"UMC,ECS,WLD\",\"MNE\":\"UMC,ECS,WLD\",\"NLD\":\"OEC,ECS,WLD\",\"NOR\":\"OEC,ECS,WLD\",\"POL\":\"OEC,ECS,WLD\",\"PRT\":\"OEC,ECS,WLD\",\"ROU\":\"UMC,ECS,WLD\",\"RUS\":\"NOC,ECS,WLD\",\"SMR\":\"NOC,ECS,WLD\",\"SRB\":\"UMC,ECS,WLD\",\"SVK\":\"OEC,ECS,WLD\",\"SVN\":\"OEC,ECS,WLD\",\"SWE\":\"OEC,ECS,WLD\",\"TJK\":\"LMC,ECS,WLD\",\"TKM\":\"UMC,ECS,WLD\",\"TUR\":\"UMC,ECS,WLD\",\"UKR\":\"LMC,ECS,WLD\",\"UZB\":\"LMC,ECS,WLD\",\"ABW\":\"NOC,LCN,WLD\",\"ARG\":\"NOC,LCN,WLD\",\"ATG\":\"NOC,LCN,WLD\",\"BHS\":\"NOC,LCN,WLD\",\"BLZ\":\"UMC,LCN,WLD\",\"BOL\":\"LMC,LCN,WLD\",\"BRA\":\"UMC,LCN,WLD\",\"BRB\":\"NOC,LCN,WLD\",\"CHL\":\"OEC,LCN,WLD\",\"COL\":\"UMC,LCN,WLD\",\"CRI\":\"UMC,LCN,WLD\",\"CUB\":\"UMC,LCN,WLD\",\"CUW\":\"NOC,LCN,WLD\",\"CYM\":\"NOC,LCN,WLD\",\"DMA\":\"UMC,LCN,WLD\",\"DOM\":\"UMC,LCN,WLD\",\"ECU\":\"UMC,LCN,WLD\",\"GRD\":\"UMC,LCN,WLD\",\"GTM\":\"LMC,LCN,WLD\",\"GUY\":\"LMC,LCN,WLD\",\"HND\":\"LMC,LCN,WLD\",\"HTI\":\"LIC,LCN,WLD\",\"JAM\":\"UMC,LCN,WLD\",\"KNA\":\"NOC,LCN,WLD\",\"LCA\":\"UMC,LCN,WLD\",\"MAF\":\"NOC,LCN,WLD\",\"MEX\":\"UMC,LCN,WLD\",\"NIC\":\"LMC,LCN,WLD\",\"PAN\":\"UMC,LCN,WLD\",\"PER\":\"UMC,LCN,WLD\",\"PRI\":\"NOC,LCN,WLD\",\"PRY\":\"UMC,LCN,WLD\",\"SLV\":\"LMC,LCN,WLD\",\"SUR\":\"UMC,LCN,WLD\",\"SXM\":\"NOC,LCN,WLD\",\"TCA\":\"NOC,LCN,WLD\",\"TTO\":\"NOC,LCN,WLD\",\"URY\":\"NOC,LCN,WLD\",\"VCT\":\"UMC,LCN,WLD\",\"VEN\":\"NOC,LCN,WLD\",\"VIR\":\"NOC,LCN,WLD\",\"ARE\":\"NOC,MEA,WLD\",\"BHR\":\"NOC,MEA,WLD\",\"DJI\":\"LMC,MEA,WLD\",\"DZA\":\"UMC,MEA,WLD\",\"EGY\":\"LMC,MEA,WLD\",\"IRN\":\"UMC,MEA,WLD\",\"IRQ\":\"UMC,MEA,WLD\",\"ISR\":\"OEC,MEA,WLD\",\"JOR\":\"UMC,MEA,WLD\",\"KWT\":\"NOC,MEA,WLD\",\"LBN\":\"UMC,MEA,WLD\",\"LBY\":\"UMC,MEA,WLD\",\"MAR\":\"LMC,MEA,WLD\",\"MLT\":\"NOC,MEA,WLD\",\"OMN\":\"NOC,MEA,WLD\",\"PSE\":\"LMC,MEA,WLD\",\"QAT\":\"NOC,MEA,WLD\",\"SAU\":\"NOC,MEA,WLD\",\"SYR\":\"LMC,MEA,WLD\",\"TUN\":\"UMC,MEA,WLD\",\"YEM\":\"LMC,MEA,WLD\",\"BMU\":\"NOC,NAC,WLD\",\"CAN\":\"OEC,NAC,WLD\",\"USA\":\"OEC,NAC,WLD\",\"AFG\":\"LIC,SAS,WLD\",\"BGD\":\"LMC,SAS,WLD\",\"BTN\":\"LMC,SAS,WLD\",\"IND\":\"LMC,SAS,WLD\",\"LKA\":\"LMC,SAS,WLD\",\"MDV\":\"UMC,SAS,WLD\",\"NPL\":\"LIC,SAS,WLD\",\"PAK\":\"LMC,SAS,WLD\",\"AGO\":\"UMC,SSF,WLD\",\"BDI\":\"LIC,SSF,WLD\",\"BEN\":\"LIC,SSF,WLD\",\"BFA\":\"LIC,SSF,WLD\",\"BWA\":\"UMC,SSF,WLD\",\"CAF\":\"LIC,SSF,WLD\",\"CIV\":\"LMC,SSF,WLD\",\"CMR\":\"LMC,SSF,WLD\",\"COD\":\"LIC,SSF,WLD\",\"COG\":\"LMC,SSF,WLD\",\"COM\":\"LIC,SSF,WLD\",\"CPV\":\"LMC,SSF,WLD\",\"ERI\":\"LIC,SSF,WLD\",\"ETH\":\"LIC,SSF,WLD\",\"GAB\":\"UMC,SSF,WLD\",\"GHA\":\"LMC,SSF,WLD\",\"GIN\":\"LIC,SSF,WLD\",\"GMB\":\"LIC,SSF,WLD\",\"GNB\":\"LIC,SSF,WLD\",\"GNQ\":\"NOC,SSF,WLD\",\"KEN\":\"LMC,SSF,WLD\",\"LBR\":\"LIC,SSF,WLD\",\"LSO\":\"LMC,SSF,WLD\",\"MDG\":\"LIC,SSF,WLD\",\"MLI\":\"LIC,SSF,WLD\",\"MOZ\":\"LIC,SSF,WLD\",\"MRT\":\"LMC,SSF,WLD\",\"MUS\":\"UMC,SSF,WLD\",\"MWI\":\"LIC,SSF,WLD\",\"NAM\":\"UMC,SSF,WLD\",\"NER\":\"LIC,SSF,WLD\",\"NGA\":\"LMC,SSF,WLD\",\"RWA\":\"LIC,SSF,WLD\",\"SDN\":\"LMC,SSF,WLD\",\"SEN\":\"LMC,SSF,WLD\",\"SLE\":\"LIC,SSF,WLD\",\"SOM\":\"LIC,SSF,WLD\",\"SSD\":\"LIC,SSF,WLD\",\"STP\":\"LMC,SSF,WLD\",\"SWZ\":\"LMC,SSF,WLD\",\"SYC\":\"NOC,SSF,WLD\",\"TCD\":\"LIC,SSF,WLD\",\"TGO\":\"LIC,SSF,WLD\",\"TZA\":\"LIC,SSF,WLD\",\"UGA\":\"LIC,SSF,WLD\",\"ZAF\":\"UMC,SSF,WLD\",\"ZMB\":\"LMC,SSF,WLD\",\"ZWE\":\"LIC,SSF,WLD\"}\n",
+    "    \n",
+    "    dataset_Final=DataFrame()\n",
+    "    failed_list=[]\n",
+    "    \n",
+    "    for ind in indicator_list:\n",
+    "        \n",
+    "        try:\n",
+    "            print('Attempt downloading....'+ISO+'.. Indicator: '+ind)\n",
+    "            #======================================< Query >======================================================================\n",
+    "            data = Quandl.get(\"ODA/\"+ISO+\"_\"+ind, authtoken=APIKey, trim_start=\"1980-12-31\", trim_end=\"2050-12-31\")\n",
+    "            #======================================< Query >======================================================================\n",
+    "\n",
+    "            iso3=[]\n",
+    "            year=[] \n",
+    "            data.columns=[ind]\n",
+    "            year=data.index.get_level_values('Date').year\n",
+    "            for item in year:\n",
+    "                iso3.append(ISO)\n",
+    "\n",
+    "            data = data.set_index([iso3, year])\n",
+    "            #identify data that are not empty\n",
+    "            Yrange=np.where(data[ind].loc[iso3].notnull())[0]\n",
+    "            #merge indicators\n",
+    "            dataset_Final=pd.concat([data,dataset_Final], axis=1, join='outer')\n",
+    "            #Set index name\n",
+    "            dataset_Final.index.name = ['iso3', 'year']\n",
+    "            \n",
+    "        except:\n",
+    "            print('Attempt downloading....'+ISO+'.. Indicator: '+ind+'... failed')\n",
+    "            failed_list.append(ind)\n",
+    "            continue\n",
+    "\n",
+    "#============================================================================================================================\n",
+    "    print('***These indicators were not available for '+ISO+' :')\n",
+    "    print(failed_list)       \n",
+    "    \n",
+    "    #Add empty columns for the indicators that were not available\n",
+    "    for fail_ind in failed_list:\n",
+    "        dataset_Final[fail_ind]= np.nan\n",
+    "    \n",
+    "    #browse the region dictionnary\n",
+    "    for iso3,region_iso in region_dict.items(): \n",
+    "            if ISO==iso3:\n",
+    "                isolistPlus.append(ISO)\n",
+    "                for item in region_iso.split(','):\n",
+    "                    isolistPlus.append(str(item))\n",
+    "                    \n",
+    "    #save income class et Region in a separate variable\n",
+    "    dataset_Final['Income_class']= isolistPlus[1]\n",
+    "    dataset_Final['Region']= isolistPlus[2]\n",
+    "    \n",
+    "print(dataset_Final)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "-------------------"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## <span style=\"color:#97b518;\">D. Database: the JSON format <small>***(JavaScript Object Notation)***"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Json datasets are text embeded data. It uses keys to sort the data and is readable by JavaScript and can be integrated into HTML pages. Here is an example of the data structure.\n",
+    "\n",
+    "```javascript\n",
+    "{\n",
+    "  \"indicator_value\": {\n",
+    "    \"103606\": {\n",
+    "      \"AFG\": {\n",
+    "        \"2005\": \"0.366\",\n",
+    "        \"2006\": \"0.376\",\n",
+    "        \"2007\": \"0.383\",\n",
+    "        \"2009\": \"0.404\",\n",
+    "        \"2010\": \"0.426\",\n",
+    "        \"2011\": \"0.428\",\n",
+    "        \"2012\": \"0.443\",\n",
+    "        \"2013\": \"0.445\"\n",
+    "      },\n",
+    "      \"ALB\": {\n",
+    "        \"2005\": \"0.64\",\n",
+    "        \"2006\": \"0.65\",\n",
+    "        \"2007\": \"0.659\",\n",
+    "        \"2009\": \"0.669\",\n",
+    "        \"2010\": \"0.675\",\n",
+    "        \"2011\": \"0.681\",\n",
+    "        \"2012\": \"0.681\",\n",
+    "        \"2013\": \"0.683\"\n",
+    "      }\n",
+    "    }\n",
+    "  },\n",
+    "  \"country_name\": {\n",
+    "    \"AFG\": \"Afghanistan\",\n",
+    "    \"ALB\": \"Albania\"\n",
+    "  },\n",
+    "  \"indicator_name\": {\n",
+    "    \"103606\": \"HDI: Income index\"\n",
+    "  }\n",
+    "}```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true
+   },
+   "source": [
+    "<div style=\"font-size:16px\"> The following request:<span style=\"color:#1174d5;\"> json.indicator_value[\"103606\"].AFG[\"2005\"]</span> will return the value: <span style=\"color:#1174d5;\">0.366</span>\n",
+    "\n",
+    "Then, it becomes pretty easy to automatically generate a graph, a table, a map, etc."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<iframe width=\"100%\" height=\"485\" src=\"//jsfiddle.net/ThomasRoca/0nxmbs05/embedded/\" allowfullscreen=\"allowfullscreen\" scrolling:\"no\" frameborder=\"0\"></iframe>"
+      ],
+      "text/plain": [
+       "<IPython.core.display.HTML object>"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from IPython.display import HTML\n",
+    "HTML('''<iframe width=\"100%\" height=\"485\" src=\"//jsfiddle.net/ThomasRoca/0nxmbs05/embedded/\" allowfullscreen=\"allowfullscreen\" scrolling:\"no\" frameborder=\"0\"></iframe>''')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "-----------------"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#<span style=\"color:#00acee;\">2. The Project \"At a glance\" "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Main Idea:\n",
+    "- Automate data collection, process and layout/dataviz (table, chart, map)\n",
+    "    \n",
+    "###Advantages:\n",
+    "- Time saving and efficiency, the value added being nested in the analysis rather than in the data collection and process...\n",
+    "- Scale economy:\n",
+    "    - The process (and the data) can be mobilize for different applications:\n",
+    "    - country dashboards;  \n",
+    "    - Research/analytics\n",
+    "    - Dataviz, etc.\n",
+    "\n",
+    "###Constrains:\n",
+    "- Standardisation\n",
+    "- Data accessible through Open Data /API   \n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "----------\n",
+    "## <span style=\"color:#97b518;\">B. Technical side"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Data journey: *API (World Bank, Quandl, UN etc) -> JSON (python, R, etc.) -> output (HTML, Web)*\n",
+    "\n",
+    "![image](Process.png)\n",
+    "\n",
+    "\n",
+    "####JSON sur mesure, avec metadata, disponibilité temporel des données, etc.:\n",
+    "\n",
+    "    We choose not to connect directly application to external database (using for e.g. Ajax)\n",
+    "    We prefered keeping control on the database and host it locally\n",
+    "    The facilitate request we designed the json such as => [Indicator_id][\"ISO3\"+year] e.g. [\"GDP\"][\"USA2015\"]\n",
+    "    This allows easily getting rid of automation issues.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Data usage:\n",
+    "\n",
+    "Example (JavaScript):\n",
+    "Display the last available data for Population i Peru (Indicator id in the WDI: SP.POP.TOTL): \n",
+    "```javascript\n",
+    "     $.getJSON(\"http://afd.countrydashboards.com/glance/data/WB_WDI_PER.json\", function (json) {  // link to the dataset\n",
+    "\n",
+    "            var Pop_date= json[\"SP.POP.TOTL\"][\"YearMax\"];  // Get the value of YearMax\n",
+    "\n",
+    "                if(Pop_date.charAt){$('#Pop_date').text('no data');} else {  // test whether a data exist\n",
+    "\n",
+    "                    var value=\"PER\"+Pop_date;                        // test whether a data exist\n",
+    "                    var Pop = json[\"SP.POP.TOTL\"][value];            // test wether a data exist\n",
+    "\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## <span style=\"color:#97b518;\">C. Présentation du prototype"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "collapsed": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<iframe src=\"http://afd.countrydashboards.com/glance/\" scrolling=\"no\" frameborder=\"0\" width=1000px\" height=\"800px\"></iframe>"
+      ],
+      "text/plain": [
+       "<IPython.core.display.HTML object>"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from IPython.display import HTML\n",
+    "HTML('''<iframe src=\"http://afd.countrydashboards.com/glance/\" scrolling=\"no\" frameborder=\"0\" width=1000px\" height=\"800px\"></iframe>''')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "---"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.4.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 0
+}
